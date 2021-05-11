@@ -5,15 +5,6 @@
     "governance": {
       "type": "motoko",
       "main": "src/governance/main.mo"
-    },
-    "governance_assets": {
-      "type": "assets",
-      "source": [
-        "src/governance_assets/assets"
-      ],
-      "dependencies": [
-        "governance"
-      ]
     }
   },
   "defaults": {
