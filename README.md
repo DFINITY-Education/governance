@@ -7,7 +7,7 @@
 
 # About
 
-In this course, students will learn about open governance on the IC and implement their own NNS-like system to create an open internet service. Module 1 serves as a primer for all things governance; we discuss the ideas behind open goverance models, how the IC implements open, autonomous governance via the NNS, and the potential for open internet services. In Module 2 students begin implementing their own version of the NNS by allowing users to "lock" balances for neuron creation. In Module 3, students add the ability for neurons to vote on proposals and follow other neurons. Finally, in Module 4 students implement canister upgrades for passed proposals. 
+In this course, students will learn about open governance on the IC and implement their own NNS-like system to create an open internet service. Module 1 serves as a primer for all things governance; we discuss the ideas behind open governance models, how the IC implements open, autonomous governance via the NNS, and the potential for open internet services. In Module 2 students begin implementing their own version of the NNS by allowing users to "lock" balances for neuron creation. In Module 3, students add the ability for neurons to vote on proposals and follow other neurons. Finally, in Module 4 students implement canister upgrades for passed proposals. 
 
 # Content
 The provided content was developed in collaboration with the following students:
