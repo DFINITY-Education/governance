@@ -1,20 +1,16 @@
-# governance
+# Table of Contents
 
-Welcome to your new governance project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+* [Module 1: Intro to Open Governance Models](module-1.md)
+* [Module 2: Neuron Creation](module-2.md)
+* [Module 3: Voting and Following](module-3.md)
+* [Module 4: Canister Upgrades](module-4.md)
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+# About
 
-To learn more before you start working with governance, see the following documentation available online:
+In this course, students will learn about open governance on the IC and implement their own NNS-like system to create an open internet service. Module 1 serves as a primer for all things governance; we discuss the ideas behind open goverance models, how the IC implements open, autonomous governance via the NNS, and the potential for open internet services. In Module 2 students begin implementing their own version of the NNS by allowing users to "lock" balances for neuron creation. In Module 3, students add the ability for neurons to vote on proposals and follow other neurons. Finally, in Module 4 students implement canister upgrades for passed proposals. 
 
-- [Quick Start](https://sdk.dfinity.org/docs/quickstart/quickstart-intro.html)
-- [SDK Developer Tools](https://sdk.dfinity.org/docs/developers-guide/sdk-guide.html)
-- [Motoko Programming Language Guide](https://sdk.dfinity.org/docs/language-guide/motoko.html)
-- [Motoko Language Quick Reference](https://sdk.dfinity.org/docs/language-guide/language-manual.html)
+# Content
+The provided content was developed in collaboration with the following students:
 
-If you want to start working on your project right away, you might want to try the following commands:
-
-```bash
-cd governance/
-dfx help
-dfx config --help
-```
+- [Nick Zoghb](https://www.linkedin.com/in/nickzoghb/), a graduate of University of California, Berkeley (2018) with a focus on Computer Science and Bioengineering
+- [Connor Solimano](https://www.linkedin.com/in/connor-solimano/), a student at Harvard College (2022) pursuing a degree in Computer Science and Economics
