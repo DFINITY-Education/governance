@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "dfx": "0.6.25",
+  "canisters": {
+    "governance": {
+      "type": "motoko",
+      "main": "src/governance/main.mo"
+    },
+    "governance_assets": {
+      "type": "assets",
+      "source": [
+        "src/governance_assets/assets"
+      ],
+      "dependencies": [
+        "governance"
+      ]
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  }
+}
