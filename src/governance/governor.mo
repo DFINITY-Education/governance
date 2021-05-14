@@ -6,16 +6,15 @@ import Time "mo:base/Time";
 
 import Types "./Types";
 
-shared(msg) actor class Governor(starterApp: Principal, voteThreshold: Float) {
+actor class Governor(starterApp: Principal, voteThreshold: Float, neuronLedger: Principal) {
 
+  type NeuronId = Types.NeuronId;
   type Proposal = Types.Proposal;
   type ProposalStatus = Types.ProposalStatus;
   type Vote = Types.Vote;
 
   type Result = Result.Result<(), Types.GovError>;
   type PropResult = Result.Result<ProposalStatus, Types.GovError>;
-
-  let owner = msg.caller;
 
   var currentApp = starterApp;
   // This should use BigMap
@@ -31,7 +30,7 @@ shared(msg) actor class Governor(starterApp: Principal, voteThreshold: Float) {
   ///   |propNum|  The number representing the passed proposal.
   /// Returns:
   ///   A Result indicating if the migration was successfully executed (see "GovError" in Types.mo for possible errors).
-  public shared(msg) func migrate(propNum: Nat) : async (Result) {
+  public func migrate(propNum: Nat) : async (Result) {
     switch (_checkProposal(propNum)) {
       case (#ok(status)) {
         switch (status) {
@@ -51,21 +50,25 @@ shared(msg) actor class Governor(starterApp: Principal, voteThreshold: Float) {
   ///   |newApp|  The Princpal id of the new proposed App.
   /// Returns:
   ///   The id associated with this proposal.
-  public shared(msg) func propose(newApp: Principal) : async (Nat) {
+  public shared(msg) func propose(neuron: NeuronId, newApp: Principal) : async (Nat) {
+    assert(msg.caller == neuronLedger);
+
     proposals := Array.thaw<Proposal>(
-      Array.append<Proposal>(Array.freeze<Proposal>(proposals), [makeProposal(newApp, msg.caller)]));
+      Array.append<Proposal>(Array.freeze<Proposal>(proposals), [makeProposal(newApp, neuron)]));
     proposals.size();
   };
 
-  /// Cancels a proposal (can ony be called by the owner of the proposal or owner of the Governor).
+  /// Cancels a proposal (can ony be called by the owner of the proposal).
   /// Args:
   ///   |propNum|  The id of the proposal.
   /// Returns:
   ///   A Result indicating if the cancellation was successfully executed (see "GovError" in Types.mo for possible errors).
-  public shared(msg) func cancelProposal(propNum: Nat) : async (Result) {
+  public shared(msg) func cancelProposal(neuron: NeuronId, propNum: Nat) : async (Result) {
+    assert(msg.caller == neuronLedger);
+
     if (proposals.size() < propNum) return #err(#proposalNotFound);
     let prop = proposals[propNum];
-    if (msg.caller != owner and msg.caller != prop.proposer) return #err(#incorrectPermissions);
+    if (neuron != prop.proposer) return #err(#incorrectPermissions);
     switch (prop.status) {
       case (#active) {
         prop.status := #canceled;
@@ -82,7 +85,9 @@ shared(msg) actor class Governor(starterApp: Principal, voteThreshold: Float) {
   ///   |vote|     The vote being case (variant type Vote - see Types.mo)
   /// Returns:
   ///   A Result indicating if the vote was successfully recorded (see "GovError" in Types.mo for possible errors).
-  public func voteOnProposal(propNum: Nat, vote: Vote) : async (Result) {
+  public shared(msg) func voteOnProposal(neuron: NeuronId, propNum: Nat, vote: Vote) : async (Result) {
+    assert(msg.caller == neuronLedger);
+
     switch (_checkProposal(propNum)) {
       case (#ok(status)) {
         switch (status) {
@@ -148,13 +153,14 @@ shared(msg) actor class Governor(starterApp: Principal, voteThreshold: Float) {
   ///   |_proposer| The canister making the proposal.
   /// Returns:
   ///   The new Proposal object (see Types.mo)
-  func makeProposal(_newApp: Principal, _proposer: Principal) : (Proposal) {
+  func makeProposal(_newApp: Principal, _proposer: NeuronId) : (Proposal) {
     {
       newApp = _newApp;
       proposer = _proposer;
       var votesFor = 0;
       var votesAgainst = 0;
       var status: ProposalStatus = #active;
+      var alreadyVoted = [];
       ttl = Time.now() + (3600 * 1000_000_000);
     }
   };
