@@ -85,7 +85,7 @@ actor class Governor(starterApp: Principal, voteThreshold: Float, neuronLedger: 
   ///   |vote|     The vote being case (variant type Vote - see Types.mo)
   /// Returns:
   ///   A Result indicating if the vote was successfully recorded (see "GovError" in Types.mo for possible errors).
-  public shared(msg) func voteOnProposal(neuron: NeuronId, propNum: Nat, vote: Vote) : async (Result) {
+  public shared(msg) func voteOnProposal(neuron: NeuronId, propNum: Nat, vote: Vote, votingPower: Nat) : async (Result) {
     assert(msg.caller == neuronLedger);
 
     switch (_checkProposal(propNum)) {
