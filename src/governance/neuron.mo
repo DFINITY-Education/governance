@@ -23,16 +23,22 @@ actor class NeuronLedger(tokenLedgerPid: Principal) = NL {
 
     let tokenLedger = actor (Principal.toText(tokenLedgerPid)) : Token.Token;
 
+    // Used to assign a unique ID to each neuron (incremented by 1 for each neuron created)
+    var neuronCount = 0;
+    // Keeps track of total number of tokens locked across all neurons
+    var totalLocked = 0;
+
     let ownersToNeuronIds = HashMap.HashMap<Principal, NeuronId>(1, Principal.equal, Principal.hash);
     let neuronIdsToNeurons = HashMap.HashMap<NeuronId, Neuron>(1, Nat.equal, Hash.hash);
-
-    var neuronCount = 0;
-    var totalLocked = 0;
 
     func me() : Principal { Principal.fromActor(NL) };
     func totalSupply() : async Nat { await tokenLedger.totalSupply() };
     func intoGovernorActor(governorPid: Principal) : Governor { actor (Principal.toText(governorPid)) };
 
+    /// Allows caller to create a new neuron, which is stored in the 
+    /// Args:
+    ///   |lockedTockens|  The number of tokens locked in this neuron.
+    ///   |dissolveDelay|  The initial dissolve delay of this neuron.
     public shared(msg) func createNeuron(lockedTokens: Nat, dissolveDelay: Nat) {
         // Caller must not already have a neuron
         switch (ownersToNeuronIds.get(msg.caller)) {
@@ -68,7 +74,7 @@ actor class NeuronLedger(tokenLedgerPid: Principal) = NL {
             };
         };
     };
-
+    /// Dissolves the caller's neuron if the dissolveDelay has elapsed
     public shared(msg) func dissolveNeuron() {
         // Caller must already have a neuron
         switch (ownersToNeuronIds.get(msg.caller)) {
@@ -105,6 +111,9 @@ actor class NeuronLedger(tokenLedgerPid: Principal) = NL {
         };
     };
 
+    /// Instructs the caller's neuron to follow |neuronIdToFollow| 
+    /// Args:
+    ///   |neuronIdToFollow|  The ID of the neuron being followed (stored in |ownersToNeuronIds|)
     public shared(msg) func followNeuron(neuronIdToFollow: NeuronId) {
         // Neuron to follow must exist
         if (Option.isNull(neuronIdsToNeurons.get(neuronIdToFollow))) {
@@ -136,6 +145,11 @@ actor class NeuronLedger(tokenLedgerPid: Principal) = NL {
         };
     };
 
+    /// Instructs caller's neuron to vote on a given proposal.
+    /// Args:
+    ///   |governor|  The governor that maintains proposals.
+    ///   |propNum|   The unique ID of the proposal.
+    ///   |vote|      The vote being cast (defined in types.mo).
     public shared(msg) func voteOnProposal(governor: Principal, propNum: Nat, vote: Vote) {
         // Caller must already have a neuron
         switch (ownersToNeuronIds.get(msg.caller)) {
@@ -165,6 +179,12 @@ actor class NeuronLedger(tokenLedgerPid: Principal) = NL {
         };
     };
 
+    /// Helper method to calculate the voting power of the neurons following neuron |id|. The greater the number
+    ///     of followees a neuron has, the greater its cascading voting power
+    /// Args:
+    ///   |id|  The NeuronId of the neuron we want to calculate the cascading voting power of. 
+    /// Returns:
+    ///   A nat representing the voting power of |id|'s followees.
     func cascadeVotingPower(id: NeuronId) : Nat {
         var n = 0;
         var neuronsToCascade = List.nil<NeuronId>();
