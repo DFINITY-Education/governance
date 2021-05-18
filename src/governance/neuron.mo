@@ -35,7 +35,7 @@ actor class NeuronLedger(tokenLedgerPid: Principal) = NL {
     func totalSupply() : async Nat { await tokenLedger.totalSupply() };
     func intoGovernorActor(governorPid: Principal) : Governor { actor (Principal.toText(governorPid)) };
 
-    /// Allows caller to create a new neuron, which is stored in the 
+    /// Allows caller to create a new neuron, which is stored in the |ownersToNeuronIds| and |neuronIdsToNeurons| hashmaps.
     /// Args:
     ///   |lockedTockens|  The number of tokens locked in this neuron.
     ///   |dissolveDelay|  The initial dissolve delay of this neuron.

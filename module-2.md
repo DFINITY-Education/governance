@@ -20,9 +20,90 @@ The dissolve delay for a neuron can be increased after the neuron is created, bu
 
 Suppose Alice locks 100 ICP in a neuron, sets the `DissolveDelay` to 1 year, and puts the neuron in the `Locked` state. She waits 2 years and then decides to begin dissolving her neuron. At this point, her neuron has an `Age` of 2 years that resets to 0, and she must wait an additional year (the length of the unchanged `DissolveDelay`) before her neuron will be `Dissolved` and she can access the ICP inside.
 
-### 
+## Your Task
 
+We have provided you with starter code for a simplified version of the NNS that could be used for open governance of an internet service. In this module, you will complete several methods that enable users to lock ICP and create neurons.
 
+### Simplifying Assumptions
+
+Our basic version of the NNS makes several important simplifications from the original NNS to make the coding process a bit easier. The main simplifications we've made are as follows:
+
+* Users can only create one neuron and follow one other neuron.
+* Users cannot change the Dissolve Delay of their neuron. We don't keep track of the three aforementioned states of the neuron (locked, dissolving, and dissolved) and assume that all neurons are in the "dissolving" state.
+
+One could quite easily modify the starter code to add in these features - consider it a bonus exercise!
+
+### Code Understanding
+
+#### `types.mo`
+
+Let's begin by reviewing the notable types in `Types.mo`. In particular, notice that a `NeuronId` is simply a Nat that serves as a unique identifier for a neuron. Additionally, a `Neuron` type stores all of the relevant information for a neuron, including attributes like its `startingTime` (time at which it was created), `dissolveDelay`, and number of `lockedTokens`.
+
+#### `neuron.mo`
+
+Next, let's turn to the main actor: the `NeuronLedger` class. This class keeps track of all neurons and their relevant methods. To instantiate a `NeuronLedger`, one must provide a `tokenLedgerPid` as a parameter, which represents the Principal id of the ledger storing all user token balances. The `NeuronLedger` needs access to this canister in order to add and subtract tokens from users' balances when they lock/dissolve neurons. 
+
+```
+import Token "mo:motoko-token/Token";
+```
+
+For our token ledger, we use the ERC-20 style token used in the [Blockchain and Cryptocurrency](https://github.com/DFINITY-Education/blockchain-and-cryptocurrency) course (imported using the above code). For a refresher on this token, please read over [Module 2](https://github.com/DFINITY-Education/blockchain-and-cryptocurrency/blob/main/module-2.md) of that course and view the [source code](https://github.com/DFINITY-Education/blockchain-and-cryptocurrency/tree/main/vendor/motoko-token) for this token. You will need to familiarize yourself with several of the methods in this token, including `balanceOf()`, `transfer()`, and `transferFrom()`.
+
+We store the Token canister in the `tokenLedger` variable, which we can use to access properties about user balances and the token itself. For instance, we create the `totalSupply()` method by simply making a call to `tokenLedger.totalSupply()`. To store neurons and their corresponding owners, we use two hash maps: `ownersToNeuronIds` and `neuronIdsToNeurons`.
+
+Finally, we have provided you with the helper function `newNeuron`, which takes in the relevant attributes needed to create a neuron and returns a `Neuron` type object.
+
+### Specification
+
+**Task:** Complete the implementation of the `createNeuron()` method in `neuron.mo`.
+
+**`createNeuron(lockedTokens: Nat, dissolveDelay: Nat)`** allows the method caller to create a new neuron, which we store in the `ownersToNeuronIds` and `neuronIdsToNeurons` hash maps.
+
+* You must first ensure that the caller doesn't already have a neuron and that they have sufficient balance to lock the specified number of `lockedTokens` up. If the method caller doesn't satisfy either of these, `assert(false)` and do not create the neuron.
+  * You will need to use the `balanceOf` method on the `tokenLedger` to access the caller's balance. Note that `balanceOf` accepts the principal id in `Text` form, so you must first convert the caller's principal id to text with the `Principal.toText()` method.
+* When a neuron is created, you must transfer `lockedTokens` from the caller to the `NeuronLedger`. You will need to use the `transferFrom` method to conduct this transfer and the `me()` helper method to access the Principal id of the `NeuronLedger`.
+* Create the new neuron by calling the `newNeuron` helper, using `null` for the `following` field. Make sure you place the correct elements into `ownersToNeuronIds` and `neuronIdsToNeurons` to store the result of this neuron creation, using `neuronCount` as the `NeuronId`. 
+* Finally, ensure that you increment the `neuronCount` variable by 1 and the `totalLocked` by the number of tokens you just locked.
+
+### Deploying
+
+Take a look at the [Developer Quick Start Guide](https://sdk.dfinity.org/docs/quickstart/quickstart.html) if you'd like a quick refresher on how to run programs on a locally-deployed IC network. 
+
+Follow these steps to deploy your canisters and launch the front end. If you run into any issues, reference the **Quick Start Guide**, linked above,  for a more in-depth walkthrough.
+
+1.  Ensure that your dfx version matches the version shown in the `dfx.json` file by running the following command:
+
+   ```
+   dfx --version
+   ```
+
+   You should see something along the lines of:
+
+   ```
+   dfx 0.6.14
+   ```
+
+   If your dfx version doesn't match that of the `dfx.json` file, see the [this guide](https://sdk.dfinity.org/docs/developers-guide/install-upgrade-remove.html#install-version) for help in changing it. 
+
+2. Open a second terminal window (so you can start and view network operations without conflicting with the management of your project) and navigate to the same `\governance` directory.
+
+   In this new window, run:
+
+   ```
+   dfx start
+   ```
+
+3. Navigate back to your main terminal window (also in the `\governance` directory) and ensure that you have `node` modules available by running:
+
+   ```
+   npm install
+   ```
+
+4. Finally, execute:
+
+   ```
+   dfx deploy
+   ```
 
 
 
