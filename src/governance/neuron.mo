@@ -74,6 +74,7 @@ actor class NeuronLedger(tokenLedgerPid: Principal) = NL {
             };
         };
     };
+
     /// Dissolves the caller's neuron if the dissolveDelay has elapsed
     public shared(msg) func dissolveNeuron() {
         // Caller must already have a neuron
