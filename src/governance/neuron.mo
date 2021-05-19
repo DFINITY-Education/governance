@@ -145,6 +145,55 @@ actor class NeuronLedger(tokenLedgerPid: Principal) = NL {
         };
     };
 
+    /// Instructs caller's neuron to create a new proposal.
+    /// Args:
+    ///   |governor|  The governor that maintains proposals.
+    ///   |newApp|    The application being proposed.
+    public shared(msg) func propose(governor: Principal, newApp: Principal) {
+        // Caller must already have a neuron
+        switch (ownersToNeuronIds.get(msg.caller)) {
+            case (?id) {
+                switch (neuronIdsToNeurons.get(id)) {
+                    case (?neuron) {
+                        let governorActor = intoGovernorActor(governor);
+                        let result = await governorActor.propose(
+                                            id,
+                                            newApp
+                                        );
+                    };
+                    case (null) assert(false);
+                };
+            };
+            case (null) assert(false);
+        };
+    };
+
+    /// Instructs caller's neuron to cancel one of their proposals.
+    /// Args:
+    ///   |governor|  The governor that maintains proposals.
+    ///   |propNum|   The unique ID of the proposal.
+    public shared(msg) func cancelProposal(governor: Principal, propNum: Nat) {
+        // Caller must already have a neuron
+        switch (ownersToNeuronIds.get(msg.caller)) {
+            case (?id) {
+                switch (neuronIdsToNeurons.get(id)) {
+                    case (?neuron) {
+                        let governorActor = intoGovernorActor(governor);
+                        let result = await governorActor.cancelProposal(
+                                            id,
+                                            propNum
+                                        );
+                        if (Result.isErr(result)) {
+                            assert(false);
+                        };
+                    };
+                    case (null) assert(false);
+                };
+            };
+            case (null) assert(false);
+        };
+    };
+
     /// Instructs caller's neuron to vote on a given proposal.
     /// Args:
     ///   |governor|  The governor that maintains proposals.
