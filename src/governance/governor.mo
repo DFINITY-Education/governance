@@ -47,6 +47,7 @@ actor class Governor(starterApp: Principal, voteThreshold: Float, neuronLedger: 
 
   /// Creates a new proposal for App migration.
   /// Args:
+  ///   |neuron|  The id of the neuron creating this proposal. 
   ///   |newApp|  The Princpal id of the new proposed App.
   /// Returns:
   ///   The id associated with this proposal.
@@ -60,6 +61,7 @@ actor class Governor(starterApp: Principal, voteThreshold: Float, neuronLedger: 
 
   /// Cancels a proposal (can ony be called by the owner of the proposal).
   /// Args:
+  ///   |neuron|   The id of the neuron creating this proposal. 
   ///   |propNum|  The id of the proposal.
   /// Returns:
   ///   A Result indicating if the cancellation was successfully executed (see "GovError" in Types.mo for possible errors).
@@ -81,8 +83,10 @@ actor class Governor(starterApp: Principal, voteThreshold: Float, neuronLedger: 
 
   /// Records a new proposal vote.
   /// Args:
-  ///   |propNum|  The id of the proposal.
-  ///   |vote|     The vote being case (variant type Vote - see Types.mo)
+  ///   |neuron|        The id of the neuron creating this proposal. 
+  ///   |propNum|       The id of the proposal.
+  ///   |vote|          The vote being case (variant type Vote - see Types.mo)
+  ///   |votingPower|   The number of votes cast for this proposal (the voting power of the neuron). 
   /// Returns:
   ///   A Result indicating if the vote was successfully recorded (see "GovError" in Types.mo for possible errors).
   public shared(msg) func voteOnProposal(neuron: NeuronId, propNum: Nat, vote: Vote, votingPower: Nat) : async (Result) {

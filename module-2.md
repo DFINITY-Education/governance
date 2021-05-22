@@ -49,13 +49,13 @@ import Token "mo:motoko-token/Token";
 
 For our token ledger, we use the ERC-20 style token used in the [Blockchain and Cryptocurrency](https://github.com/DFINITY-Education/blockchain-and-cryptocurrency) course (imported using the above code). For a refresher on this token, please read over [Module 2](https://github.com/DFINITY-Education/blockchain-and-cryptocurrency/blob/main/module-2.md) of that course and view the [source code](https://github.com/DFINITY-Education/blockchain-and-cryptocurrency/tree/main/vendor/motoko-token) for this token. You will need to familiarize yourself with several of the methods in this token, including `balanceOf()`, `transfer()`, and `transferFrom()`.
 
-We store the Token canister in the `tokenLedger` variable, which we can use to access properties about user balances and the token itself. For instance, we create the `totalSupply()` method by simply making a call to `tokenLedger.totalSupply()`. To store neurons and their corresponding owners, we use two hash maps: `ownersToNeuronIds` and `neuronIdsToNeurons`.
+We store the Token canister in the `tokenLedger` variable, which we can use to access properties about user balances and the token itself. For instance, we create the `totalSupply()` method by simply making a call to `tokenLedger.totalSupply()`. To store neurons and their corresponding owners, we use two hash maps: `ownersToNeuronIds` and `neuronIdsToNeurons`. While we really only need one hash map because users can only have a single neuron, we implemented it in this way to easily enable users to have multiple neurons downs the line, if desired.
 
 Finally, we have provided you with the helper function `newNeuron`, which takes in the relevant attributes needed to create a neuron and returns a `Neuron` type object.
 
 ### Specification
 
-**Task:** Complete the implementation of the `createNeuron()` method in `neuron.mo`.
+**Task:** Complete the implementation of the `createNeuron()` and `dissolveNeuron()` methods in `neuron.mo`.
 
 **`createNeuron(lockedTokens: Nat, dissolveDelay: Nat)`** allows the method caller to create a new neuron, which we store in the `ownersToNeuronIds` and `neuronIdsToNeurons` hash maps.
 
@@ -64,6 +64,16 @@ Finally, we have provided you with the helper function `newNeuron`, which takes 
 * When a neuron is created, you must transfer `lockedTokens` from the caller to the `NeuronLedger`. You will need to use the `transferFrom` method to conduct this transfer and the `me()` helper method to access the Principal id of the `NeuronLedger`.
 * Create the new neuron by calling the `newNeuron` helper, using `null` for the `following` field. Make sure you place the correct elements into `ownersToNeuronIds` and `neuronIdsToNeurons` to store the result of this neuron creation, using `neuronCount` as the `NeuronId`. 
 * Finally, ensure that you increment the `neuronCount` variable by 1 and the `totalLocked` by the number of tokens you just locked.
+
+**`dissolveNeuron()`** allows the method caller to dissolve their neuron if the `dissolveDelay` has elapsed
+
+* You must first check that the `msg.caller` has a neuron. Additionally, the neuron's `dissolveDelay` must have elapsed for the neuron to be dissolved. You can check this condition by comparing the `dissolveDelay` and `startingTime` attributes to the current `Time.now()` at which this method way called.
+  * If either of these conditions don't hold, `assert(false)` to indicate an error.
+* Once a neuron is dissolved, you must transfer the locked tokens plus the locking reward back to the user. 
+  * Remember that you are transferring tokens from the current canister (`NeuronLedger`) to the caller's canister, which can be accomplished with the token's `.transfer()` function.
+    * Note that the `transfer()` function returns a boolean indicating if the transfer was a success. If the transfer fails, you should return `assert(false)` to indicate an error.
+  * The `calculateReward(neuron)` function is used to calculate the reward for holding a neuron, based on the elapsed `dissolveDelay`. For now, this reward is set to 0, but you can modify this function to create rewards as you see fit.
+*  Dissolved neurons should be deleted from both `ownersToNeuronIds` and `neuronIdsToNeurons`, and `totalLocked` should be decreased by the number of `lockedTokens` in the neuron.
 
 ### Deploying
 
