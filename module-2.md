@@ -76,6 +76,7 @@ Finally, we have provided you with the helper function `newNeuron`, which takes 
 *  Dissolved neurons should be deleted from both `ownersToNeuronIds` and `neuronIdsToNeurons`, and `totalLocked` should be decreased by the number of `lockedTokens` in the neuron.
 
 ### Deploying
+Note, you may need to download the package vessel to your local machine. Instructions to do so can be found here: https://github.com/DFINITY-Education/data-structures/blob/master/downloading_vessel.md
 
 Take a look at the [Developer Quick Start Guide](https://sdk.dfinity.org/docs/quickstart/quickstart.html) if you'd like a quick refresher on how to run programs on a locally-deployed IC network. 
 
